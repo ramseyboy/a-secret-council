@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ASecretCouncil.Model.Application;
 
-public class ApplicationService(ApplicationContext context, IMapper mapper): IApplicationService
+public sealed class ApplicationService(ApplicationContext context, IMapper mapper): IApplicationService
 {
     public async Task<bool> ApplicationExists(Guid applicationId)
     {
