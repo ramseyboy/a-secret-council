@@ -1,0 +1,68 @@
+﻿@page "/personalInfo"
+@layout FormLayout
+@using ASecretCouncil.Host.Properties
+@using ASecretCouncil.Host.Shared.Services
+
+@implements IPersonalInformationView
+
+@inject IPersonalInformationPresenter Presenter
+@inject LoadingService LoadingService
+@inject PrefillFormAfterRenderDelegate AfterRenderDelegate
+
+<PageTitle>Personal Information</PageTitle>
+<MudForm @ref="_formRef" @bind-IsValid="@Presenter.ViewModel.IsValid">
+    <MudText Typo="Typo.body1">
+        <b>Point of Contact Information:</b>
+    </MudText>
+    <MudTextField T="string" InputType="InputType.Text" autocomplete="given-name" Label="First Name" Required="true" @bind-Value="Presenter.ViewModel.FirstName" RequiredError="@Strings.Validation_RequiredMessage"/>
+    <MudTextField T="string" InputType="InputType.Text" autocomplete="family-name" Label="Last Name" Required="true" @bind-Value="Presenter.ViewModel.LastName" RequiredError="@Strings.Validation_RequiredMessage"/>
+    <MudTextField T="string" InputType="InputType.Email" autocomplete="email" Label="Email Address" Required="true" @bind-Value="Presenter.ViewModel.Email" RequiredError="@Strings.Validation_RequiredMessage"
+                  Validation="@Presenter.EmailValidationFunc"/>
+    <MudTextField T="string" InputType="InputType.Telephone" autocomplete="tel" Mask="@(new PatternMask("(000) 000-0000"))" Label="Telephone Number" Required="true" @bind-Value="Presenter.ViewModel.Phone" RequiredError="@Strings.Validation_RequiredMessage"
+                  Validation="@Presenter.PhoneValidationFunc"/>
+
+    <MudButton Variant="Variant.Filled" Color="Color.Secondary" Class="ml-auto" OnClick="@(async () => await Presenter.OnPreviousClicked())">@Strings.Button_Previous</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" Disabled="@(!Presenter.ViewModel.IsValid)" OnClick="@(async () => await Presenter.OnNextClicked())">@Strings.Button_Next</MudButton>
+
+</MudForm>
+
+
+@code {
+    private MudForm? _formRef;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Presenter.InitializeAsync(this);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await AfterRenderDelegate.OnAfterRenderAsync(Presenter, firstRender);
+    }
+
+    public void TriggerRender()
+    {
+        StateHasChanged();
+    }
+
+    public async Task Validate()
+    {
+        if (_formRef == null)
+        {
+            return;
+        }
+
+        await _formRef.Validate();
+    }
+
+    public void StartLoading()
+    {
+        LoadingService.StartLoading();
+    }
+
+    public void StopLoading()
+    {
+        LoadingService.StopLoading();
+    }
+
+}

@@ -1,0 +1,56 @@
+@page "/summary"
+@using ASecretCouncil.Host.Properties
+@using ASecretCouncil.Host.Shared.Services
+@layout FormLayout
+
+@implements IView
+
+@inject ISummaryPresenter Presenter
+@inject LoadingService LoadingService
+@inject PrefillFormAfterRenderDelegate AfterRenderDelegate
+
+<PageTitle>Summary</PageTitle>
+
+<MudList T="string" ReadOnly="true" Dense="true">
+    <MudListSubheader>Personal Information</MudListSubheader>
+    <MudListItem Text="@Presenter.ViewModel.FullName" SecondaryText="Name"/>
+    <MudListItem Text="@Presenter.ViewModel.Email" SecondaryText="Email Address"/>
+    <MudListItem Text="@Presenter.ViewModel.Phone" SecondaryText="Phone Number"/>
+</MudList>
+
+<MudList T="string" ReadOnly="true" Dense="true">
+    <MudListSubheader>Files</MudListSubheader>
+    <MudListItem Text="@Presenter.ViewModel.ResumeFileName" SecondaryText="@($"Last Modified: {Presenter.ViewModel.ResumeLastModified}")"/>
+</MudList>
+
+<MudButton Variant="Variant.Filled" Color="Color.Secondary" Class="ml-auto" OnClick="@(async () => await Presenter.OnPreviousClicked())">@Strings.Button_Previous</MudButton>
+<MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick="@(async () => await Presenter.OnNextClicked())">@Strings.Button_Submit</MudButton>
+
+@code {
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await Presenter.InitializeAsync(this);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await AfterRenderDelegate.OnAfterRenderAsync(Presenter, firstRender);
+    }
+    
+    public void TriggerRender()
+    {
+        StateHasChanged();
+    }
+
+    public void StartLoading()
+    {
+        LoadingService.StartLoading();
+    }
+
+    public void StopLoading()
+    {
+        LoadingService.StopLoading();
+    }
+
+}

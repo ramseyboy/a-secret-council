@@ -1,0 +1,50 @@
+
+.stepper {
+  display: grid;
+  align-items: center;
+  margin: 20px 0 40px 0;
+}
+
+.timeline {
+  grid-area: 1 / 1;
+  height: 8px;
+  background: var(--mud-palette-primary);
+  z-index: 10;
+}
+
+.steps {
+  display: grid;
+  grid-area: 1 / 1;
+  z-index: 20;
+  justify-content: space-between
+}
+
+.step {
+  height: 40px;
+  width: 80px;
+  grid-row-start: 1;
+  padding: 20%;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid var(--mud-palette-primary);
+}
+
+.step-active {
+  background: var(--mud-palette-primary);
+}
+
+.step-active ::deep a {
+  color: var(--mud-palette-white) !important;
+}
+
+.step-inactive {
+  background: var(--mud-palette-white);
+}
+
+.step-inactive ::deep a {
+  color: var(--mud-palette-primary) !important;
+}

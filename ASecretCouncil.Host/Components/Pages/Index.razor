@@ -1,0 +1,60 @@
+﻿@page "/"
+@layout FormLayout
+
+@using ASecretCouncil.Host.Properties
+@using ASecretCouncil.Host.Shared.Services
+
+@implements IView
+
+@inject LoadingService LoadingService
+@inject IFormRoutingPresenter RoutingPresenter
+@inject ISnackbar Snackbar
+
+<MudGrid Class="d-flex justify-center">
+    <MudItem>
+        <MudProgressCircular Size="Size.Large" Color="Color.Primary" Indeterminate="true"/>
+    </MudItem>
+</MudGrid>
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RoutingPresenter.InitializeAsync(this);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            ShowMessage(Strings.Form_RoutingMessage);
+            await RoutingPresenter.NavigateToCurrentStep();
+        }
+    }
+    
+    private void ShowMessage(string message)
+    {
+        Snackbar.Clear();
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomCenter;
+        Snackbar.Add(message, Severity.Normal, (options) =>
+        {
+            options.CloseAfterNavigation = true;
+        });
+    }
+
+    public void TriggerRender()
+    {
+        StateHasChanged();
+    }
+
+    public void StartLoading()
+    {
+        LoadingService.StartLoading();
+    }
+
+    public void StopLoading()
+    {
+        LoadingService.StopLoading();
+    }
+
+}

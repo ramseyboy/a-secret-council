@@ -1,0 +1,58 @@
+﻿@inherits LayoutComponentBase
+@using ASecretCouncil.Host.Shared.Services
+@implements IDisposable
+
+<MudThemeProvider/>
+<MudPopoverProvider/>
+<MudDialogProvider/>
+<MudSnackbarProvider/>
+
+<MudLayout>
+    <MudAppBar Color="Color.Primary" Elevation="4">
+        <MudText Typo="Typo.h5" Class="ml-3">
+            An Invitation to a Secret Council
+        </MudText>
+        <MudSpacer/>
+    </MudAppBar>
+    <MudMainContent Class="main-layout">
+        @if (_isLoading)
+        {
+            <MudProgressLinear Color="Color.Secondary" Indeterminate="true"/>
+        }
+        else
+        {
+            <MudProgressLinear Color="Color.Transparent" Indeterminate="true"/>
+        }
+        <MudContainer MaxWidth="MaxWidth.Large" Class="my-10 pb-16">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+    <MudScrollToTop>
+        <MudFab Style="margin-bottom: 64px" Color="Color.Secondary" Icon="@Icons.Material.Filled.ArrowCircleUp"/>
+    </MudScrollToTop>
+</MudLayout>
+
+@code{
+    bool _isLoading;
+    
+    [Inject]
+    LoadingService LoadingService { get; set; } = default!;
+
+    private IDisposable? _subscription;
+
+    protected override void OnInitialized()
+    {
+        _subscription = LoadingService.IsLoading()
+            .Subscribe(next =>
+            {
+                _isLoading = next;
+                StateHasChanged();
+            });
+    }
+
+    public void Dispose()
+    {
+        _subscription?.Dispose();
+    }
+
+}

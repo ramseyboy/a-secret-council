@@ -1,0 +1,3 @@
+.main-layout ::deep {
+  padding-bottom: calc(var(--mud-appbar-height) - var(--mud-appbar-height) / 8);
+}

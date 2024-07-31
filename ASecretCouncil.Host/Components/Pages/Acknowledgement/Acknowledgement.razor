@@ -1,0 +1,43 @@
+﻿@page "/acknowledgement"
+@using ASecretCouncil.Host.Components.Pages.Steps
+@using ASecretCouncil.Host.Properties
+@using ASecretCouncil.Host.Shared.Services
+
+@inject LoadingService LoadingService
+@inject IAcknowledgmentPresenter AcknowledgmentPresenter
+
+@implements IView
+
+@layout FormLayout
+
+<PageTitle>Calling all Heroes of Middle Earth</PageTitle>
+<MudText Typo="Typo.h4">An invitation</MudText>
+<MudText Typo="Typo.body1">
+You are hereby summoned to a secret meeting at Rivendell by his lordship Elrond, half elven. Be you man, elf, dwarf please fill out this form for our records. Middle earth runs on an efficient bureaucracy. 
+</MudText>
+<MudCheckBox @bind-Value="@AcknowledgmentPresenter.ViewModel.IsValid" Label="By checking this box, I affirm that I have read the above notice, and understand that my personal data may be used by the Elven Advertising Service or its subsidiaries."></MudCheckBox>
+<MudButton Variant="Variant.Filled" Color="Color.Secondary" Disabled="@(!AcknowledgmentPresenter.ViewModel.IsValid)" OnClick="@(async () => await AcknowledgmentPresenter.OnNextClicked())">@Strings.Button_Submit</MudButton>
+
+@code {
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await AcknowledgmentPresenter.InitializeAsync(this);
+    }
+
+    public void TriggerRender()
+    {
+        StateHasChanged();
+    }
+
+    public void StartLoading()
+    {
+        LoadingService.StartLoading();
+    }
+
+    public void StopLoading()
+    {
+        LoadingService.StopLoading();
+    }
+
+}

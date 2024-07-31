@@ -1,0 +1,74 @@
+@page "/files"
+@layout FormLayout
+@using ASecretCouncil.Host.Properties
+@using ASecretCouncil.Host.Shared.Services
+@implements IFilesView
+
+@inject LoadingService LoadingService
+@inject IFilesPresenter Presenter
+@inject PrefillFormAfterRenderDelegate AfterRenderDelegate
+
+<PageTitle>Upload Resume</PageTitle>
+<MudForm @ref="_formRef" @bind-IsValid="@Presenter.ViewModel.IsValid">
+    <MudFileUpload T="IBrowserFile" Validation="@Presenter.FileValidationFunc" SuppressOnChangeWhenInvalid="true" @bind-Files="Presenter.ViewModel.SelectedFile" Required="true" Accept=".pdf" OnFilesChanged="Presenter.OnUploadFiles" MaximumFileCount="1" RequiredError="@Strings.Validation_RequiredMessage">
+        <ActivatorContent>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.CloudUpload">
+                Resume Upload
+            </MudButton>
+        </ActivatorContent>
+        <SelectedTemplate>
+            @if (context != null)
+            {
+                <MudIcon Icon="@Icons.Material.Filled.PictureAsPdf"/>
+                <MudText>@context.Name - Last Modified: @context.LastModified</MudText>
+            }
+            else
+            {
+                <MudText>No File</MudText>
+            }
+        </SelectedTemplate>
+    </MudFileUpload>
+    <MudButton Variant="Variant.Filled" Color="Color.Secondary" Class="ml-auto" OnClick="@(async () => await Presenter.OnPreviousClicked())">@Strings.Button_Previous</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" Disabled="@(!Presenter.ViewModel.IsValid)" OnClick="@(async () => await Presenter.OnNextClicked())">@Strings.Button_Next</MudButton>
+</MudForm>
+@code {
+    private MudForm? _formRef;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Presenter.InitializeAsync(this);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await AfterRenderDelegate.OnAfterRenderAsync(Presenter, firstRender);
+    }
+
+    public void TriggerRender()
+    {
+        StateHasChanged();
+    }
+
+    public void StartLoading()
+    {
+        LoadingService.StartLoading();
+    }
+
+    public void StopLoading()
+    {
+        LoadingService.StopLoading();
+    }
+
+    public async Task Validate()
+    {
+        if (_formRef == null)
+        {
+            return;
+        }
+
+        await _formRef.Validate();
+    }
+
+}

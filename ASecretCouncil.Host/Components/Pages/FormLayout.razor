@@ -1,0 +1,92 @@
+﻿@using ASecretCouncil.Host.Components.Layout
+@using ASecretCouncil.Host.Components.Pages.Steps
+@using ASecretCouncil.Host.Shared.Services
+@implements IDisposable
+
+@inherits LayoutComponentBase
+@layout MainLayout
+
+@implements IView
+
+@inject NavigationManager NavigationManager
+@inject IFormSteps Steps
+@inject IFormRoutingPresenter RoutingPresenter
+@inject LoadingService LoadingService
+
+<CascadingValue Value="this">
+    <div class="stepper">
+        <div class="timeline"></div>
+        <div class="steps">
+            @{
+                var currentStep = _headStep;
+                while (currentStep != null)
+                {
+                    var step = currentStep;
+                    <div class="step @StepClass(step)">
+                        <NavLink @onclick="@(async () => await RoutingPresenter.OnNavClick(step))" Match="NavLinkMatch.Prefix">@step.Display</NavLink>
+                    </div>
+                    currentStep = currentStep.Next;
+                }
+            }
+
+        </div>
+    </div>
+</CascadingValue>
+
+<MudCard Elevation="4" Style="padding: 64px">
+    @Body
+</MudCard>
+
+@code {
+
+    private FormStepViewModel _headStep = null!;
+    
+    public string CurrentUrl { get; private set; } = null!;
+    
+    protected override void OnInitialized()
+    {
+        CurrentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;
+        _headStep = Steps.Head();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RoutingPresenter.InitializeAsync(this);
+    }
+
+    private string StepClass(FormStepViewModel iterStep)
+    {
+        if (!string.IsNullOrEmpty(CurrentUrl) && iterStep.Href.EndsWith(CurrentUrl))
+        {
+            return "step-active";
+        }
+        return "step-inactive";
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        CurrentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+
+    public void TriggerRender()
+    {
+        StateHasChanged();
+    }
+
+    public void StartLoading()
+    {
+        LoadingService.StartLoading();
+    }
+
+    public void StopLoading()
+    {
+        LoadingService.StopLoading();
+    }
+}
