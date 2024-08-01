@@ -251,6 +251,6 @@ paket-files/
 .idea/
 *.sln.iml
 
-**/wwwroot/src/*
+**/wwwroot/css/**
 **/*.map
 **/*.razor.css
